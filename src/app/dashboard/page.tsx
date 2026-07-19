@@ -1,17 +1,7 @@
-"use client"
-
-import * as React from "react"
 import { format } from "date-fns"
-import { CalendarIcon, UtensilsCrossed } from "lucide-react"
+import { UtensilsCrossed } from "lucide-react"
+import { auth } from "@clerk/nextjs/server"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import {
   Card,
   CardHeader,
@@ -21,48 +11,21 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { DatePickerLink } from "@/components/date-picker-link"
+import { getMealsForUserOnDate } from "@/data/meals"
 
-type Meal = {
-  id: string
-  name: string
-  type: "Breakfast" | "Lunch" | "Dinner" | "Snack"
-  calories: number
-  time: string
-}
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>
+}) {
+  const { userId } = await auth()
+  if (!userId) return null
 
-const placeholderMeals: Meal[] = [
-  {
-    id: "1",
-    name: "Oatmeal with berries",
-    type: "Breakfast",
-    calories: 320,
-    time: "7:30 AM",
-  },
-  {
-    id: "2",
-    name: "Grilled chicken salad",
-    type: "Lunch",
-    calories: 480,
-    time: "12:15 PM",
-  },
-  {
-    id: "3",
-    name: "Greek yogurt",
-    type: "Snack",
-    calories: 150,
-    time: "3:45 PM",
-  },
-  {
-    id: "4",
-    name: "Salmon with roasted vegetables",
-    type: "Dinner",
-    calories: 610,
-    time: "7:00 PM",
-  },
-]
+  const { date: dateParam } = await searchParams
+  const date = dateParam ? new Date(`${dateParam}T00:00:00`) : new Date()
 
-export default function DashboardPage() {
-  const [date, setDate] = React.useState<Date>(new Date())
+  const meals = await getMealsForUserOnDate(userId, date)
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
@@ -73,62 +36,47 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <Popover>
-        <PopoverTrigger
-          render={
-            <Button
-              variant="outline"
-              className={cn(
-                "w-[280px] justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 size-4" />
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-            </Button>
-          }
-        />
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(selected) => selected && setDate(selected)}
-            autoFocus
-          />
-        </PopoverContent>
-      </Popover>
+      <DatePickerLink date={date} />
 
       <Card>
         <CardHeader>
           <CardTitle>Meals for {format(date, "EEEE, MMMM d, yyyy")}</CardTitle>
           <CardDescription>
-            {placeholderMeals.length} meal
-            {placeholderMeals.length === 1 ? "" : "s"} logged
+            {meals.length} meal
+            {meals.length === 1 ? "" : "s"} logged
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {placeholderMeals.length > 0 ? (
+          {meals.length > 0 ? (
             <ScrollArea className="h-[360px] pr-4">
               <ul className="flex flex-col gap-3">
-                {placeholderMeals.map((meal) => (
-                  <li
-                    key={meal.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{meal.name}</span>
-                        <Badge variant="secondary">{meal.type}</Badge>
+                {meals.map((meal) => {
+                  const calories = meal.items.reduce(
+                    (sum, item) =>
+                      sum + (item.food?.caloriesPerUnit ?? 0) * item.quantity,
+                    0
+                  )
+                  return (
+                    <li
+                      key={meal.id}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            {meal.name ?? "Meal"}
+                          </span>
+                          <Badge variant="secondary">
+                            {format(meal.loggedAt, "p")}
+                          </Badge>
+                        </div>
                       </div>
-                      <span className="text-muted-foreground text-sm">
-                        {meal.time}
+                      <span className="text-sm font-medium">
+                        {Math.round(calories)} kcal
                       </span>
-                    </div>
-                    <span className="text-sm font-medium">
-                      {meal.calories} kcal
-                    </span>
-                  </li>
-                ))}
+                    </li>
+                  )
+                })}
               </ul>
             </ScrollArea>
           ) : (
