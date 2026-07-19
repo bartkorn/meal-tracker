@@ -8,6 +8,10 @@ Before writing or modifying any code, always check the `/docs` directory for a r
 
 `docs/data-fetching.md` is a must-read reference point before implementing any database or data-fetching interaction — Server Components only (no route handlers, no client-side fetching), all queries via Drizzle helpers in `/data` (no raw SQL), and strict per-user data isolation. Its rules take precedence over general defaults for anything touching data.
 
+`docs/auth.md` is a must-read reference point before touching anything related to authentication — Clerk only, prebuilt Clerk components, centralized route protection in `src/proxy.ts`, and `userId` sourced from Clerk's `auth()` and passed into `/data` helpers. Its rules take precedence over general defaults for anything touching auth.
+
+`docs/data-mutations.md` is a must-read reference point before implementing any data mutation — Server Actions only (co-located `actions.ts` files, no route handlers), explicitly typed parameters (no `FormData`), mandatory Zod validation, and mutations via Drizzle helpers in `/data` with per-user scoping. Its rules take precedence over general defaults for anything touching mutations.
+
 ## Project state
 
 This is a freshly scaffolded Next.js app (via `create-next-app`) with no custom application code yet — `src/app/page.tsx` still holds the default starter page. There are no tests configured.
