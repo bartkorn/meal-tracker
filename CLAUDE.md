@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Docs come first
+
+Before writing or modifying any code, always check the `/docs` directory for a relevant doc file and follow it. For example, `docs/ui.md` defines the UI coding standards (shadcn/ui only) and must be consulted before making any UI-related change. If a `/docs/ui.md` file covers the area you're touching, its rules take precedence over general defaults.
+
 ## Project state
 
 This is a freshly scaffolded Next.js app (via `create-next-app`) with no custom application code yet — `src/app/page.tsx` still holds the default starter page. There are no tests configured.
