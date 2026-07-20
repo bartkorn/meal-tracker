@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { format } from "date-fns"
 import { UtensilsCrossed } from "lucide-react"
 import { auth } from "@clerk/nextjs/server"
@@ -13,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DatePickerLink } from "@/components/date-picker-link"
 import { getMealsForUserOnDate } from "@/data/meals"
+import { MealLoggedToast } from "./meal-logged-toast"
 
 export default async function DashboardPage({
   searchParams,
@@ -29,6 +31,9 @@ export default async function DashboardPage({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
+      <Suspense fallback={null}>
+        <MealLoggedToast />
+      </Suspense>
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground text-sm">

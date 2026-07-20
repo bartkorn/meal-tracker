@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { meals, mealItems } from "@/db/schema";
 
 export async function getMealsForUserOnDate(userId: string, date: Date) {
   const startOfDay = new Date(date);
@@ -14,4 +15,30 @@ export async function getMealsForUserOnDate(userId: string, date: Date) {
     with: { items: { with: { food: true } } },
     orderBy: { loggedAt: "asc" },
   });
+}
+
+export async function createMealForUser(
+  userId: string,
+  input: {
+    name: string;
+    loggedAt: Date;
+    items: { foodId: number; quantity: number }[];
+  }
+) {
+  const [meal] = await db
+    .insert(meals)
+    .values({ userId, name: input.name, loggedAt: input.loggedAt })
+    .returning();
+
+  if (input.items.length > 0) {
+    await db.insert(mealItems).values(
+      input.items.map((item) => ({
+        mealId: meal.id,
+        foodId: item.foodId,
+        quantity: item.quantity,
+      }))
+    );
+  }
+
+  return meal;
 }
