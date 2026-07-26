@@ -33,5 +33,5 @@ export async function updateMeal(
   const meal = await updateMealForUser(userId, input.mealId, input);
   if (!meal) throw new Error("Meal not found");
 
-  redirect("/dashboard?mealUpdated=1");
+  redirect("/dashboard/day?mealUpdated=1");
 }

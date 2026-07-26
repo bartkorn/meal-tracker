@@ -14,35 +14,18 @@ import {
   type ItemRow,
 } from "../food-items-editor"
 import { createFood } from "../actions"
-import { updateMeal } from "./actions"
+import { createMeal } from "./actions"
 
-type Meal = {
-  id: number
-  name: string | null
-  loggedAt: Date
-  items: { foodId: number; quantity: number }[]
-}
-
-export function EditMealForm({ meal, foods }: { meal: Meal; foods: Food[] }) {
+export function NewMealForm({ foods }: { foods: Food[] }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  const [name, setName] = useState(meal.name ?? "")
+  const [name, setName] = useState("")
   const [loggedAt, setLoggedAt] = useState(() =>
-    format(meal.loggedAt, "yyyy-MM-dd'T'HH:mm")
+    format(new Date(), "yyyy-MM-dd'T'HH:mm")
   )
-  const [items, setItems] = useState<ItemRow[]>(() =>
-    meal.items.length > 0
-      ? meal.items.map((item, index) => ({
-          key: index,
-          foodId: String(item.foodId),
-          quantity: String(item.quantity),
-          newFoodName: "",
-          newFoodCalories: "",
-        }))
-      : [createEmptyItemRow(0)]
-  )
+  const [items, setItems] = useState<ItemRow[]>([createEmptyItemRow(0)])
 
   function addItem() {
     setItems((rows) => [
@@ -90,10 +73,10 @@ export function EditMealForm({ meal, foods }: { meal: Meal; foods: Food[] }) {
           })
         )
 
-        await updateMeal(meal.id, name, new Date(loggedAt), parsedItems)
+        await createMeal(name, new Date(loggedAt), parsedItems)
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to update meal."
+          err instanceof Error ? err.message : "Failed to create meal."
         )
       }
     })
@@ -137,13 +120,13 @@ export function EditMealForm({ meal, foods }: { meal: Meal; foods: Food[] }) {
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/dashboard/day")}
           disabled={isPending}
         >
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : "Save changes"}
+          {isPending ? "Saving..." : "Save meal"}
         </Button>
       </div>
     </form>

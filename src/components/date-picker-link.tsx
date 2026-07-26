@@ -38,7 +38,7 @@ export function DatePickerLink({ date }: { date: Date }) {
           selected={date}
           onSelect={(selected) => {
             if (!selected) return
-            router.push(`/dashboard?date=${format(selected, "yyyy-MM-dd")}`)
+            router.push(`/dashboard/day?date=${format(selected, "yyyy-MM-dd")}`)
           }}
           autoFocus
         />

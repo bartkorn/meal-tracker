@@ -43,7 +43,7 @@ export default async function DashboardPage({
             Track meals for any day.
           </p>
         </div>
-        <Button nativeButton={false} render={<Link href="/dashboard/meals/new" />}>
+        <Button nativeButton={false} render={<Link href="/dashboard/day/meals/new" />}>
           <Plus />
           Log new meal
         </Button>
@@ -72,7 +72,7 @@ export default async function DashboardPage({
                   return (
                     <li key={meal.id}>
                       <Link
-                        href={`/dashboard/meals/${meal.id}`}
+                        href={`/dashboard/day/meals/${meal.id}`}
                         className="hover:bg-accent flex items-center justify-between rounded-lg border p-3 transition-colors"
                       >
                         <div className="flex flex-col gap-1">

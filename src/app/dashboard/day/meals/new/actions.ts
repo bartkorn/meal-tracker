@@ -30,5 +30,5 @@ export async function createMeal(
 
   await createMealForUser(userId, input);
 
-  redirect("/dashboard?mealLogged=1");
+  redirect("/dashboard/day?mealLogged=1");
 }
