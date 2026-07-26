@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import Link from "next/link"
 import { format } from "date-fns"
 import { UtensilsCrossed } from "lucide-react"
 import { auth } from "@clerk/nextjs/server"
@@ -62,23 +63,25 @@ export default async function DashboardPage({
                     0
                   )
                   return (
-                    <li
-                      key={meal.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">
-                            {meal.name ?? "Meal"}
-                          </span>
-                          <Badge variant="secondary">
-                            {format(meal.loggedAt, "p")}
-                          </Badge>
+                    <li key={meal.id}>
+                      <Link
+                        href={`/dashboard/meals/${meal.id}`}
+                        className="hover:bg-accent flex items-center justify-between rounded-lg border p-3 transition-colors"
+                      >
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {meal.name ?? "Meal"}
+                            </span>
+                            <Badge variant="secondary">
+                              {format(meal.loggedAt, "p")}
+                            </Badge>
+                          </div>
                         </div>
-                      </div>
-                      <span className="text-sm font-medium">
-                        {Math.round(calories)} kcal
-                      </span>
+                        <span className="text-sm font-medium">
+                          {Math.round(calories)} kcal
+                        </span>
+                      </Link>
                     </li>
                   )
                 })}
