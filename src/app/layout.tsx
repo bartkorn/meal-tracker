@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ModeToggle } from "@/components/mode-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,26 +30,35 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ClerkProvider>
-          <header className="flex items-center justify-end gap-4 px-6 py-4">
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <Button variant="outline">Sign in</Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button>Sign up</Button>
-              </SignUpButton>
-            </Show>
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
-          </header>
-          {children}
-          <Toaster position="bottom-right" />
-        </ClerkProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ClerkProvider>
+            <header className="flex items-center justify-end gap-4 px-6 py-4">
+              <ModeToggle />
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <Button variant="outline">Sign in</Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button>Sign up</Button>
+                </SignUpButton>
+              </Show>
+              <Show when="signed-in">
+                <UserButton />
+              </Show>
+            </header>
+            {children}
+            <Toaster position="bottom-right" />
+          </ClerkProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
