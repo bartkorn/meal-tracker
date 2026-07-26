@@ -2,32 +2,19 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  FoodItemsEditor,
+  createEmptyItemRow,
+  type Food,
+  type ItemRow,
+} from "../food-items-editor"
+import { createFood } from "../actions"
 import { createMeal } from "./actions"
-
-type Food = {
-  id: number
-  name: string
-  caloriesPerUnit: number
-}
-
-type ItemRow = {
-  key: number
-  foodId: string
-  quantity: string
-}
 
 export function NewMealForm({ foods }: { foods: Food[] }) {
   const router = useRouter()
@@ -38,14 +25,12 @@ export function NewMealForm({ foods }: { foods: Food[] }) {
   const [loggedAt, setLoggedAt] = useState(() =>
     format(new Date(), "yyyy-MM-dd'T'HH:mm")
   )
-  const [items, setItems] = useState<ItemRow[]>([
-    { key: 0, foodId: "", quantity: "1" },
-  ])
+  const [items, setItems] = useState<ItemRow[]>([createEmptyItemRow(0)])
 
   function addItem() {
     setItems((rows) => [
       ...rows,
-      { key: rows.length === 0 ? 0 : rows[rows.length - 1].key + 1, foodId: "", quantity: "1" },
+      createEmptyItemRow(rows.length === 0 ? 0 : rows[rows.length - 1].key + 1),
     ])
   }
 
@@ -63,20 +48,31 @@ export function NewMealForm({ foods }: { foods: Food[] }) {
     e.preventDefault()
     setError(null)
 
-    const parsedItems = items
-      .filter((row) => row.foodId !== "")
-      .map((row) => ({
-        foodId: Number(row.foodId),
-        quantity: Number(row.quantity),
-      }))
+    const relevantRows = items.filter((row) => row.foodId !== "")
 
-    if (parsedItems.length === 0) {
+    if (relevantRows.length === 0) {
       setError("Add at least one food item.")
       return
     }
 
     startTransition(async () => {
       try {
+        const parsedItems = await Promise.all(
+          relevantRows.map(async (row) => {
+            if (row.foodId === "__new__") {
+              const food = await createFood(
+                row.newFoodName,
+                Number(row.newFoodCalories)
+              )
+              return { foodId: food.id, quantity: Number(row.quantity) }
+            }
+            return {
+              foodId: Number(row.foodId),
+              quantity: Number(row.quantity),
+            }
+          })
+        )
+
         await createMeal(name, new Date(loggedAt), parsedItems)
       } catch (err) {
         setError(
@@ -110,66 +106,13 @@ export function NewMealForm({ foods }: { foods: Food[] }) {
         />
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <Label>Food items</Label>
-          <Button type="button" variant="outline" size="sm" onClick={addItem}>
-            <Plus className="size-4" />
-            Add item
-          </Button>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {items.map((row) => (
-            <div key={row.key} className="flex items-center gap-2">
-              <Select
-                value={row.foodId}
-                onValueChange={(value) =>
-                  updateItem(row.key, { foodId: value ?? "" })
-                }
-              >
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select a food">
-                    {(value: string | null) =>
-                      foods.find((food) => String(food.id) === value)?.name ??
-                      "Select a food"
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {foods.map((food) => (
-                    <SelectItem key={food.id} value={String(food.id)}>
-                      {food.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Input
-                type="number"
-                min="0"
-                step="any"
-                className="w-24"
-                value={row.quantity}
-                onChange={(e) =>
-                  updateItem(row.key, { quantity: e.target.value })
-                }
-                placeholder="Qty"
-              />
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeItem(row.key)}
-                disabled={items.length === 1}
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
+      <FoodItemsEditor
+        items={items}
+        foods={foods}
+        onAddItem={addItem}
+        onRemoveItem={removeItem}
+        onUpdateItem={updateItem}
+      />
 
       {error && <p className="text-destructive text-sm">{error}</p>}
 
