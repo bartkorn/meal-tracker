@@ -7,6 +7,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card"
+import { getLoggedDatesForUser } from "@/data/meals"
 import { MonthCalendar } from "./month-calendar"
 
 export default async function DashboardPage() {
@@ -14,6 +15,7 @@ export default async function DashboardPage() {
   if (!userId) return null
 
   const today = new Date()
+  const loggedDates = await getLoggedDatesForUser(userId)
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
@@ -30,7 +32,7 @@ export default async function DashboardPage() {
           <CardDescription>Select a day to jump to it.</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <MonthCalendar today={today} />
+          <MonthCalendar today={today} loggedDates={loggedDates} />
         </CardContent>
       </Card>
     </div>

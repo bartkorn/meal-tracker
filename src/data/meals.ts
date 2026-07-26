@@ -18,6 +18,23 @@ export async function getMealsForUserOnDate(userId: string, date: Date) {
   });
 }
 
+export async function getLoggedDatesForUser(userId: string) {
+  const rows = await db.query.meals.findMany({
+    where: { userId },
+    columns: { loggedAt: true },
+  });
+
+  const dates = new Set(
+    rows.map((row) => {
+      const d = new Date(row.loggedAt);
+      d.setHours(0, 0, 0, 0);
+      return d.getTime();
+    })
+  );
+
+  return Array.from(dates, (time) => new Date(time));
+}
+
 export async function getMealForUser(userId: string, mealId: number) {
   return db.query.meals.findFirst({
     where: { id: mealId, userId },

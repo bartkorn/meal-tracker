@@ -6,7 +6,13 @@ import { enUS } from "date-fns/locale"
 
 import { Calendar } from "@/components/ui/calendar"
 
-export function MonthCalendar({ today }: { today: Date }) {
+export function MonthCalendar({
+  today,
+  loggedDates,
+}: {
+  today: Date
+  loggedDates: Date[]
+}) {
   const router = useRouter()
 
   return (
@@ -15,6 +21,7 @@ export function MonthCalendar({ today }: { today: Date }) {
       defaultMonth={today}
       selected={undefined}
       locale={enUS}
+      modifiers={{ logged: loggedDates }}
       onSelect={(selected) => {
         if (!selected) return
         router.push(`/dashboard/day?date=${format(selected, "yyyy-MM-dd")}`)
