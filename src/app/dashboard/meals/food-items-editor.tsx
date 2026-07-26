@@ -33,6 +33,22 @@ export function createEmptyItemRow(key: number): ItemRow {
   return { key, foodId: "", quantity: "1", newFoodName: "", newFoodCalories: "" }
 }
 
+function rowCalories(row: ItemRow, foods: Food[]): number {
+  const quantity = Number(row.quantity)
+  if (!Number.isFinite(quantity) || quantity <= 0) return 0
+
+  const isNew = row.foodId === NEW_FOOD_VALUE
+  const caloriesPerUnit = isNew
+    ? Number(row.newFoodCalories)
+    : foods.find((food) => String(food.id) === row.foodId)?.caloriesPerUnit
+
+  if (!Number.isFinite(caloriesPerUnit) || (caloriesPerUnit as number) < 0) {
+    return 0
+  }
+
+  return quantity * (caloriesPerUnit as number)
+}
+
 export function FoodItemsEditor({
   items,
   foods,
@@ -46,6 +62,11 @@ export function FoodItemsEditor({
   onRemoveItem: (key: number) => void
   onUpdateItem: (key: number, patch: Partial<ItemRow>) => void
 }) {
+  const totalCalories = items.reduce(
+    (sum, row) => sum + rowCalories(row, foods),
+    0
+  )
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -104,6 +125,12 @@ export function FoodItemsEditor({
                   />
                 )}
 
+                {!isNew && (
+                  <span className="text-muted-foreground w-20 shrink-0 text-right text-sm tabular-nums">
+                    {Math.round(rowCalories(row, foods))} cal
+                  </span>
+                )}
+
                 <Button
                   type="button"
                   variant="ghost"
@@ -149,11 +176,19 @@ export function FoodItemsEditor({
                     }
                     placeholder="Qty"
                   />
+                  <span className="text-muted-foreground w-20 shrink-0 text-right text-sm tabular-nums">
+                    {Math.round(rowCalories(row, foods))} cal
+                  </span>
                 </div>
               )}
             </div>
           )
         })}
+      </div>
+
+      <div className="flex items-center justify-between border-t pt-3 text-sm font-medium">
+        <span>Total calories</span>
+        <span className="tabular-nums">{Math.round(totalCalories)} cal</span>
       </div>
     </div>
   )
