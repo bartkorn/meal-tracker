@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { format } from "date-fns"
-import { UtensilsCrossed } from "lucide-react"
+import { Plus, UtensilsCrossed } from "lucide-react"
 import { auth } from "@clerk/nextjs/server"
 
 import {
@@ -12,6 +12,7 @@ import {
   CardContent,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DatePickerLink } from "@/components/date-picker-link"
 import { getMealsForUserOnDate } from "@/data/meals"
@@ -35,11 +36,17 @@ export default async function DashboardPage({
       <Suspense fallback={null}>
         <MealLoggedToast />
       </Suspense>
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">
-          Track meals for any day.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">
+            Track meals for any day.
+          </p>
+        </div>
+        <Button nativeButton={false} render={<Link href="/dashboard/meals/new" />}>
+          <Plus />
+          Log new meal
+        </Button>
       </div>
 
       <DatePickerLink date={date} />
