@@ -42,7 +42,7 @@ export default async function DashboardPage() {
       : 0
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -58,35 +58,37 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Monthly calories</CardTitle>
-          <CardDescription>
-            {today.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <span className="text-4xl font-bold tracking-tight">
-              {averageDailyCalories.toLocaleString()}
-            </span>
-            <span className="text-muted-foreground text-sm">
-              average kcal / day logged
-            </span>
-          </div>
-          <MonthlyCaloriesChart data={dailyCalories} />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Calendar</CardTitle>
+            <CardDescription>Select a day to jump to it.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <MonthCalendar today={today} loggedDates={loggedDates} />
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Calendar</CardTitle>
-          <CardDescription>Select a day to jump to it.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex justify-center">
-          <MonthCalendar today={today} loggedDates={loggedDates} />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly calories</CardTitle>
+            <CardDescription>
+              {today.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <span className="text-4xl font-bold tracking-tight">
+                {averageDailyCalories.toLocaleString()}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                average kcal / day logged
+              </span>
+            </div>
+            <MonthlyCaloriesChart data={dailyCalories} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
