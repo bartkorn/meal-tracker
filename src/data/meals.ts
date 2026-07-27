@@ -35,6 +35,40 @@ export async function getLoggedDatesForUser(userId: string) {
   return Array.from(dates, (time) => new Date(time));
 }
 
+export async function getDailyCaloriesForUserInMonth(
+  userId: string,
+  year: number,
+  month: number
+) {
+  const startOfMonth = new Date(year, month, 1);
+  const startOfNextMonth = new Date(year, month + 1, 1);
+
+  const rows = await db.query.meals.findMany({
+    where: {
+      userId,
+      loggedAt: { gte: startOfMonth, lt: startOfNextMonth },
+    },
+    with: { items: { with: { food: true } } },
+  });
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const totalsByDay = new Array(daysInMonth).fill(0) as number[];
+
+  for (const meal of rows) {
+    const day = new Date(meal.loggedAt).getDate();
+    const calories = meal.items.reduce(
+      (sum, item) => sum + (item.food?.caloriesPerUnit ?? 0) * item.quantity,
+      0
+    );
+    totalsByDay[day - 1] += calories;
+  }
+
+  return totalsByDay.map((calories, index) => ({
+    day: index + 1,
+    calories: Math.round(calories),
+  }));
+}
+
 export async function getMealForUser(userId: string, mealId: number) {
   return db.query.meals.findFirst({
     where: { id: mealId, userId },
