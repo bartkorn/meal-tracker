@@ -64,7 +64,7 @@ export default async function DashboardPage() {
             <CardTitle>Calendar</CardTitle>
             <CardDescription>Select a day to jump to it.</CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center">
+          <CardContent>
             <MonthCalendar today={today} loggedDates={loggedDates} />
           </CardContent>
         </Card>

@@ -26,7 +26,11 @@ export function MonthCalendar({
         if (!selected) return
         router.push(`/dashboard/day?date=${format(selected, "yyyy-MM-dd")}`)
       }}
-      className="rounded-lg border"
+      className="w-full [--cell-size:--spacing(10)]"
+      classNames={{
+        root: "w-full",
+        month: "w-full",
+      }}
     />
   )
 }
